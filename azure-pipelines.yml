@@ -71,7 +71,6 @@ stages:
     jobs:
       - deployment: Deploy
         pool:
-          name: 'My pool'
           vmImage: 'ubuntu-22.04'
         environment: dev
         strategy:
