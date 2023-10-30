@@ -81,7 +81,7 @@ stages:
           vmImage: 'ubuntu-22.04'
         environment: dev
         variables:
-          - group: $(BuildConfiguration)
+          - group: $(buildConfiguration)
         strategy:
           runOnce:
             deploy:
