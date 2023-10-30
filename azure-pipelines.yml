@@ -3,6 +3,7 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
+  releaseBranchName: 'release'
 
 stages:
   - stage: Build
@@ -65,16 +66,22 @@ stages:
           - publish: '$(Build.ArtifactStagingDirectory)'
             artifact: drop
 
-  - stage: 'Deployment'
-    displayName: Deployment of the Web application
+  - stage: 'Dev'
+    displayName: 'Dev phase to exploit the web app'
     dependsOn: Build
+    condition: |
+      and
+      (
+      succeeded(),
+      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+      )
     jobs:
       - deployment: Deploy
         pool:
           vmImage: 'ubuntu-22.04'
         environment: dev
         variables:
-          - group: Release
+          - group: $(BuildConfiguration)
         strategy:
           runOnce:
             deploy:
@@ -82,8 +89,8 @@ stages:
                 - download: current
                   artifact: drop
                 - task: AzureWebApp@1
-                  displayName: 'Task to deploy everything'
+                  displayName: 'Azure App Service Deploy: website'
                   inputs:
                     azureSubscription: 'Resource Manager - Tailspin - Space Game'
-                    appName: '$(WebAppName)'
+                    appName: '$(WebAppNameDev)'
                     package: '$(Pipeline.Workspace)/drop/$(BuildConfiguration)/*.zip'
