@@ -8,6 +8,13 @@ variables:
 stages:
 - stage: 'Build'
   displayName: 'Build the web application'
+  schedule:
+    - cron: '0 3 * * *'
+      displayName: 'Every night at 3 A.M'
+      branches:
+        include:
+          - released
+      always: false
   jobs:
   - job: 'Build'
     displayName: 'Build job'
@@ -95,3 +102,27 @@ stages:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
               appName: '$(WebAppNameDev)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Test'
+  displayName: 'Deploy the testing phase'
+  dependsOn: Dev
+  #condition: succeeded()
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-22.04'
+    environment: 'test'
+    variables:
+      - group: 'Release'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              artifact: drop
+            - task: AzureWebApp@1
+              displayName: 'Azure App Service Deploy: website'
+              inputs:
+                azureSubscription: 'Resource Manager - Tailspin - Space Game'
+                appName: '$(WebAppNameTest)'
+                package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
