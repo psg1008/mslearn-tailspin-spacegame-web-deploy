@@ -5,16 +5,17 @@ variables:
   buildConfiguration: 'Release'
   releaseBranchName: 'released'
 
+schedules:
+  - cron: '0 3 * * *'
+    displayName: 'Every night at 3 A.M'
+    branches:
+      include:
+      - released
+    always: false
+
 stages:
 - stage: 'Build'
   displayName: 'Build the web application'
-  schedule:
-    - cron: '0 3 * * *'
-      displayName: 'Every night at 3 A.M'
-      branches:
-        include:
-          - released
-      always: false
   jobs:
   - job: 'Build'
     displayName: 'Build job'
