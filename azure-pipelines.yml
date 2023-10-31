@@ -3,7 +3,7 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
-  releaseBranchName: 'release'
+  releaseBranchName: 'released'
 
 stages:
 - stage: 'Build'
@@ -69,12 +69,13 @@ stages:
 - stage: 'Dev'
   displayName: 'Deploy to the dev environment'
   dependsOn: Build
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
+  condition: succeeded() 
+  #|
+   # and
+    #(
+     # succeeded(),
+     # eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+    #)
   jobs:
   - deployment: Deploy
     pool:
